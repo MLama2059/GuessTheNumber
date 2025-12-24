@@ -2,6 +2,8 @@
 
 <h3>Guess The Number</h3>
 
+<p>Attempts: @numberOfAttempts</p>
+
 @if (!gameOver)
 {
     <label for="Input">Enter your guess.</label>
@@ -12,16 +14,16 @@
 else
 {
     <p>@feedbackMessage</p>
-    <button type="reset" @onclick="HandleRestart">Restart Game</button>  
+    <button type="reset" @onclick="HandleRestart">Restart Game</button>
 }
 
 @code {
     private int secretNumber;
-    private int userGuess = 0;
-    private int numberOfAttempts = 0;
+    private int? userGuess;
+    private int numberOfAttempts;
     private string feedbackMessage = string.Empty;
     private bool gameOver = false;
-    Random random = new Random();
+    private readonly Random random = new();
 
     protected override void OnInitialized()
     {
@@ -30,7 +32,14 @@ else
 
     private void HandleGuess()
     {
+        if (userGuess is null)
+        {
+            feedbackMessage = "Please enter a valid number.";
+            return;
+        }
+
         numberOfAttempts++;
+
         if (userGuess < secretNumber)
         {
             feedbackMessage = "Too low! Try again.";
@@ -44,14 +53,16 @@ else
             feedbackMessage = $"Congratulations! You've guessed the number {secretNumber} in {numberOfAttempts} attempts.";
             gameOver = true;
         }
+        userGuess = null;
     }
 
     private void HandleRestart()
     {
         secretNumber = random.Next(1, 51);
-        userGuess = 0;
+        userGuess = null;
         numberOfAttempts = 0;
         feedbackMessage = string.Empty;
         gameOver = false;
     }
 }
+
